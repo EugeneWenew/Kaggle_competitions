@@ -1,6 +1,6 @@
 example of python code
 
-# Kaglle_competitions
+# Kaggle_competitions
 
 titanic
 
