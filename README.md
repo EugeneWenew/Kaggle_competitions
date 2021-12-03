@@ -1,5 +1,7 @@
 example of python code
 
+Предпочитаю задачи регрессии/классификации.
+
 # Kaggle_competitions
 
 titanic
