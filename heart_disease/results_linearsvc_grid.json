@@ -1,0 +1,16 @@
+{
+  "model": "LinearSVC_GridSearch",
+  "time_min": 6.103473142782847,
+  "best_params": {
+    "C": 1,
+    "class_weight": "balanced",
+    "max_iter": 500,
+    "penalty": "l1"
+  },
+  "cv_best_score": 0.8696866253834701,
+  "test_accuracy": 0.8801,
+  "test_f1": 0.866436448702239,
+  "test_roc_auc": 0,
+  "baseline_f1": 0.8648,
+  "improvement": 0.0016364487022390017
+}

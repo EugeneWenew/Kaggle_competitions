@@ -1,0 +1,16 @@
+{
+  "model": "LinearSVC_FinalGridSearch",
+  "time_min": 0.7547672986984253,
+  "best_params": {
+    "C": 0.8,
+    "class_weight": "balanced",
+    "max_iter": 600,
+    "penalty": "l1"
+  },
+  "cv_best_score": 0.8696866253834701,
+  "test_accuracy": 0.8801,
+  "test_f1": 0.866436448702239,
+  "test_roc_auc": 0,
+  "baseline_f1": 0.8664,
+  "improvement": 3.644870223906693e-05
+}

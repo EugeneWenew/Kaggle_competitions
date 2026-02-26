@@ -1,0 +1,6 @@
+{
+  "LightGBM": 0.46,
+  "XGBoost": 0.42,
+  "LogisticRegression": 0.44,
+  "LinearSVC": 0.41
+}

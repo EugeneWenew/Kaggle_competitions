@@ -1,0 +1,17 @@
+{
+  "model": "LogisticRegression_GridSearch",
+  "time_min": 8.572828384240468,
+  "best_params": {
+    "C": 2,
+    "class_weight": "balanced",
+    "max_iter": 500,
+    "penalty": "l2",
+    "solver": "liblinear"
+  },
+  "cv_best_score": 0.8698041313620484,
+  "test_accuracy": 0.8812,
+  "test_f1": 0.8678825622775801,
+  "test_roc_auc": 0.9497819709291068,
+  "baseline_f1": 0.8656,
+  "improvement": 0.002282562277580058
+}

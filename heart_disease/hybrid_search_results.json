@@ -1,0 +1,20 @@
+[
+  {
+    "model": "LogisticRegression",
+    "search_type": "GridSearch",
+    "best_params": {
+      "C": 2,
+      "class_weight": "balanced",
+      "penalty": "l2",
+      "solver": "liblinear"
+    },
+    "cv_f1": 0.8698041313620484,
+    "test_f1": 0.8678825622775801,
+    "test_accuracy": 0.8812,
+    "test_roc_auc": 0.9497819709291068,
+    "baseline_f1": 0.8656,
+    "improvement": 0.004204131362048336,
+    "time_min": 4.105232417583466,
+    "timestamp": "2026-02-25 13:41:23"
+  }
+]

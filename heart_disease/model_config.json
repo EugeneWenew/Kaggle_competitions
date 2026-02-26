@@ -1,0 +1,22 @@
+{
+  "model": "LightGBM",
+  "threshold": 0.46,
+  "feature_cols": [
+    "Age",
+    "Sex",
+    "Chest pain type",
+    "BP",
+    "Cholesterol",
+    "FBS over 120",
+    "EKG results",
+    "Max HR",
+    "Exercise angina",
+    "ST depression",
+    "Slope of ST",
+    "Number of vessels fluro",
+    "Thallium"
+  ],
+  "val_f1": 0.8726358368864109,
+  "val_accuracy": 0.8835,
+  "val_roc_auc": 0.9540934473378192
+}

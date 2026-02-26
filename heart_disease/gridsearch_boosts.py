@@ -1,0 +1,247 @@
+"""
+gridsearch_boosts.py
+GridSearchCV для LightGBM, XGBoost и Voting Ensemble
+"""
+
+import pandas as pd
+import numpy as np
+import time
+import json
+from sklearn.model_selection import GridSearchCV, train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import VotingClassifier
+from sklearn.metrics import accuracy_score, f1_score, roc_auc_score
+import warnings
+warnings.filterwarnings('ignore')
+
+print("=" * 80)
+print("🔍 GRIDSEARCHCV ДЛЯ БУСТОВ + VOTING ENSEMBLE")
+print("=" * 80)
+print(f"🕐 Начало: {time.strftime('%H:%M:%S')}")
+
+total_start = time.time()
+
+# ─────────────────────────────────────────────────────────────
+# Загрузка данных
+# ─────────────────────────────────────────────────────────────
+df = pd.read_csv('train_fixed.csv')
+X = df.drop('Heart Disease', axis=1)
+y = df['Heart Disease'].map({'Absence': 0, 'Presence': 1})
+
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X_scaled, y, test_size=10000, random_state=42, stratify=y
+)
+
+print(f"\n✅ Train: {len(X_train):,} | Test: {len(X_test):,}")
+print("=" * 80)
+
+# Базовые результаты для сравнения
+baseline = {
+    'LightGBM': 0.8726,
+    'XGBoost': 0.8720,
+    'VotingEnsemble': 0.8693
+}
+
+all_results = []
+
+# ─────────────────────────────────────────────────────────────
+# МОДЕЛЬ 1: LightGBM + GridSearchCV
+# ─────────────────────────────────────────────────────────────
+print("\n" + "=" * 80)
+print("1️⃣ LightGBM + GridSearchCV")
+print("=" * 80)
+start = time.time()
+
+from lightgbm import LGBMClassifier
+
+param_grid_lgb = {
+    'n_estimators': [100, 200, 300],
+    'max_depth': [4, 6, 8, 10],
+    'learning_rate': [0.01, 0.05, 0.1, 0.2],
+    'num_leaves': [15, 31, 63],
+    'min_child_samples': [10, 20, 30]
+}
+
+grid_lgb = GridSearchCV(
+    LGBMClassifier(random_state=42, verbose=-1, n_jobs=-1),
+    param_grid_lgb,
+    cv=5,
+    scoring='f1',
+    n_jobs=-1,
+    verbose=1
+)
+grid_lgb.fit(X_train, y_train)
+
+elapsed = time.time() - start
+y_pred = grid_lgb.predict(X_test)
+y_proba = grid_lgb.predict_proba(X_test)[:, 1]
+
+results_lgb = {
+    'model': 'LightGBM_GridSearch',
+    'time_min': elapsed / 60,
+    'best_params': grid_lgb.best_params_,
+    'cv_best_score': float(grid_lgb.best_score_),
+    'test_accuracy': float(accuracy_score(y_test, y_pred)),
+    'test_f1': float(f1_score(y_test, y_pred)),
+    'test_roc_auc': float(roc_auc_score(y_test, y_proba)),
+    'baseline_f1': baseline['LightGBM'],
+    'improvement': float(f1_score(y_test, y_pred)) - baseline['LightGBM']
+}
+
+with open('results_lightgbm_grid.json', 'w', encoding='utf-8') as f:
+    json.dump(results_lgb, f, indent=2)
+
+all_results.append(results_lgb)
+
+print(f"\n⏱️ {elapsed/60:.2f} мин | F1: {results_lgb['test_f1']:.4f}")
+print(f"📋 Параметры: {grid_lgb.best_params_}")
+print(f"📈 Улучшение: {results_lgb['improvement']:+.4f}")
+
+# ─────────────────────────────────────────────────────────────
+# МОДЕЛЬ 2: XGBoost + GridSearchCV
+# ─────────────────────────────────────────────────────────────
+print("\n" + "=" * 80)
+print("2️⃣ XGBoost + GridSearchCV")
+print("=" * 80)
+start = time.time()
+
+from xgboost import XGBClassifier
+
+param_grid_xgb = {
+    'n_estimators': [100, 200, 300],
+    'max_depth': [3, 5, 7, 9],
+    'learning_rate': [0.01, 0.05, 0.1, 0.2],
+    'subsample': [0.7, 0.8, 0.9, 1.0],
+    'colsample_bytree': [0.7, 0.8, 0.9, 1.0]
+}
+
+grid_xgb = GridSearchCV(
+    XGBClassifier(random_state=42, verbosity=0, n_jobs=-1),
+    param_grid_xgb,
+    cv=5,
+    scoring='f1',
+    n_jobs=-1,
+    verbose=1
+)
+grid_xgb.fit(X_train, y_train)
+
+elapsed = time.time() - start
+y_pred = grid_xgb.predict(X_test)
+y_proba = grid_xgb.predict_proba(X_test)[:, 1]
+
+results_xgb = {
+    'model': 'XGBoost_GridSearch',
+    'time_min': elapsed / 60,
+    'best_params': grid_xgb.best_params_,
+    'cv_best_score': float(grid_xgb.best_score_),
+    'test_accuracy': float(accuracy_score(y_test, y_pred)),
+    'test_f1': float(f1_score(y_test, y_pred)),
+    'test_roc_auc': float(roc_auc_score(y_test, y_proba)),
+    'baseline_f1': baseline['XGBoost'],
+    'improvement': float(f1_score(y_test, y_pred)) - baseline['XGBoost']
+}
+
+with open('results_xgboost_grid.json', 'w', encoding='utf-8') as f:
+    json.dump(results_xgb, f, indent=2)
+
+all_results.append(results_xgb)
+
+print(f"\n⏱️ {elapsed/60:.2f} мин | F1: {results_xgb['test_f1']:.4f}")
+print(f"📋 Параметры: {grid_xgb.best_params_}")
+print(f"📈 Улучшение: {results_xgb['improvement']:+.4f}")
+
+# ─────────────────────────────────────────────────────────────
+# МОДЕЛЬ 3: Voting Ensemble (LightGBM + XGBoost) + GridSearch
+# ─────────────────────────────────────────────────────────────
+print("\n" + "=" * 80)
+print("3️⃣ Voting Ensemble (LGB + XGB) + GridSearchCV")
+print("=" * 80)
+start = time.time()
+
+# Используем лучшие параметры из предыдущих GridSearch
+lgb_best = LGBMClassifier(random_state=42, verbose=-1, n_jobs=-1, **grid_lgb.best_params_)
+xgb_best = XGBClassifier(random_state=42, verbosity=0, n_jobs=-1, **grid_xgb.best_params_)
+
+# GridSearch для весов голосования
+param_grid_voting = {
+    'weights': [
+        [1, 1],
+        [1, 2],
+        [2, 1],
+        [1, 3],
+        [3, 1],
+        [2, 3],
+        [3, 2]
+    ]
+}
+
+grid_voting = GridSearchCV(
+    VotingClassifier(
+        estimators=[('lgb', lgb_best), ('xgb', xgb_best)],
+        voting='soft',
+        n_jobs=-1
+    ),
+    param_grid_voting,
+    cv=5,
+    scoring='f1',
+    n_jobs=-1,
+    verbose=1
+)
+grid_voting.fit(X_train, y_train)
+
+elapsed = time.time() - start
+y_pred = grid_voting.predict(X_test)
+y_proba = grid_voting.predict_proba(X_test)[:, 1]
+
+results_voting = {
+    'model': 'VotingEnsemble_Boosts_GridSearch',
+    'time_min': elapsed / 60,
+    'best_params': grid_voting.best_params_,
+    'cv_best_score': float(grid_voting.best_score_),
+    'test_accuracy': float(accuracy_score(y_test, y_pred)),
+    'test_f1': float(f1_score(y_test, y_pred)),
+    'test_roc_auc': float(roc_auc_score(y_test, y_proba)),
+    'baseline_f1': baseline['VotingEnsemble'],
+    'improvement': float(f1_score(y_test, y_pred)) - baseline['VotingEnsemble']
+}
+
+with open('results_voting_boosts_grid.json', 'w', encoding='utf-8') as f:
+    json.dump(results_voting, f, indent=2)
+
+all_results.append(results_voting)
+
+print(f"\n⏱️ {elapsed/60:.2f} мин | F1: {results_voting['test_f1']:.4f}")
+print(f"📋 Веса: {grid_voting.best_params_}")
+print(f"📈 Улучшение: {results_voting['improvement']:+.4f}")
+
+# ─────────────────────────────────────────────────────────────
+# ИТОГОВЫЙ ОТЧЁТ
+# ─────────────────────────────────────────────────────────────
+total_elapsed = time.time() - total_start
+
+print("\n" + "=" * 80)
+print("📊 ИТОГОВЫЙ ОТЧЁТ")
+print("=" * 80)
+
+print(f"\n{'Модель':<35} {'База':<8} {'Grid':<8} {'Δ':<10} {'Время':<10}")
+print("-" * 80)
+for res in sorted(all_results, key=lambda x: x['test_f1'], reverse=True):
+    name = res['model'].replace('_GridSearch', '').replace('_Boosts', '')
+    print(f"{name:<35} {res['baseline_f1']:<8.4f} {res['test_f1']:<8.4f} {res['improvement']:+.4f} {res['time_min']:<10.2f} мин")
+
+print(f"\n⏱️ ОБЩЕЕ ВРЕМЯ: {total_elapsed/60:.2f} минут")
+
+# Лучшая модель
+best = max(all_results, key=lambda x: x['test_f1'])
+print(f"\n🏆 ЛУЧШАЯ МОДЕЛЬ: {best['model']}")
+print(f"   F1-Score:  {best['test_f1']:.4f}")
+print(f"   Accuracy:  {best['test_accuracy']:.4f}")
+print(f"   ROC-AUC:   {best['test_roc_auc']:.4f}")
+print(f"   Улучшение: {best['improvement']:+.4f}")
+
+print("\n✅ Результаты сохранены: results_*_grid.json")
+print(f"\n🕐 Конец: {time.strftime('%H:%M:%S')}")
+print("=" * 80)

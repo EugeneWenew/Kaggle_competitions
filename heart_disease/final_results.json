@@ -1,0 +1,41 @@
+{
+  "sample_size": 150000,
+  "test_size": 10000,
+  "results": [
+    {
+      "model": "LightGBM",
+      "threshold": 0.46,
+      "f1": 0.8789,
+      "accuracy": 0.8887,
+      "roc_auc": 0.9557
+    },
+    {
+      "model": "XGBoost",
+      "threshold": 0.42,
+      "f1": 0.8773,
+      "accuracy": 0.888,
+      "roc_auc": 0.9557
+    },
+    {
+      "model": "LogisticRegression",
+      "threshold": 0.44,
+      "f1": 0.8726,
+      "accuracy": 0.8826,
+      "roc_auc": 0.9525
+    },
+    {
+      "model": "LinearSVC",
+      "threshold": 0.41,
+      "f1": 0.8725,
+      "accuracy": 0.8824,
+      "roc_auc": 0
+    }
+  ],
+  "best_model": {
+    "model": "LightGBM",
+    "threshold": 0.46,
+    "f1": 0.8789,
+    "accuracy": 0.8887,
+    "roc_auc": 0.9557
+  }
+}

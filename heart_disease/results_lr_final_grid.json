@@ -1,0 +1,17 @@
+{
+  "model": "LogisticRegression_FinalGridSearch",
+  "time_min": 0.9512478629748027,
+  "best_params": {
+    "C": 1.8,
+    "class_weight": "balanced",
+    "max_iter": 400,
+    "penalty": "l2",
+    "solver": "liblinear"
+  },
+  "cv_best_score": 0.8698041313620484,
+  "test_accuracy": 0.8812,
+  "test_f1": 0.8678825622775801,
+  "test_roc_auc": 0.9497819709291068,
+  "baseline_f1": 0.8679,
+  "improvement": -1.7437722419910706e-05
+}
